@@ -2,27 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MarkdownLive Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>MarkdownLive Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it-footnote/3.0.3/markdown-it-footnote.min.js"></script>
     <style>
-        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; }
-        textarea, #preview { width: 50%; height: 100%; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        textarea { border: none; border-right: 1px solid #ccc; outline: none; background: #f4f4f4; resize: none; font-family: monospace; font-size: 14px; }
-        #preview { background: white; }
+        body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; }
+        .toolbar { padding: 10px; background: #334155; color: white; display: flex; gap: 10px; }
+        .editor-container { display: flex; flex-grow: 1; overflow: hidden; }
+        #editor, #preview { width: 50%; height: 100%; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+        #editor { border: none; border-right: 1px solid #ccc; background: #f8fafc; font-family: monospace; resize: none; }
     </style>
 </head>
 <body>
-    <textarea id="editor" placeholder="Type Markdown here..."></textarea>
-    <div id="preview"></div>
+    <div class="toolbar">
+        <button onclick="buildTable()">+ Table Wizard</button>
+        <button onclick="exportDoc('html')">Export HTML</button>
+        <button onclick="generateReadme()">README Template</button>
+    </div>
+    <div class="editor-container">
+        <textarea id="editor" oninput="update()"></textarea>
+        <div id="preview"></div>
+    </div>
 
     <script>
+        const md = window.markdownit().use(window.markdownitFootnote);
+        
+        function update() {
+            const content = document.getElementById('editor').value;
+            document.getElementById('preview').innerHTML = md.render(content);
+        }
+
+        // Sync Scroll
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
+        editor.onscroll = () => preview.scrollTop = editor.scrollTop;
 
-        editor.addEventListener('input', () => {
-            const raw = editor.value;
-            preview.innerHTML = marked.parse(raw);
-        });
+        function buildTable() {
+            const rows = prompt("Rows?", "2");
+            const cols = prompt("Columns?", "2");
+            let mdTable = "\n| " + " Col |".repeat(cols) + "\n| " + " --- |".repeat(cols) + "\n";
+            for(let i=0; i<rows; i++) mdTable += "| " + " |".repeat(cols) + "\n";
+            editor.value += mdTable;
+            update();
+        }
+
+        function generateReadme() {
+            editor.value = "# Project Title\n## Installation\n```bash\nnpm install\n```";
+            update();
+        }
+
+        function exportDoc(type) {
+            const blob = new Blob([preview.innerHTML], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'document.html';
+            a.click();
+        }
     </script>
 </body>
 </html>
