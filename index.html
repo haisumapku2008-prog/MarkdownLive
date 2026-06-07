@@ -2,22 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MarkdownLive Pro</title>
+    <title>MarkdownLive Pro Suite</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it-footnote/3.0.3/markdown-it-footnote.min.js"></script>
     <style>
         body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; }
-        .toolbar { padding: 10px; background: #334155; color: white; display: flex; gap: 10px; }
+        .toolbar { padding: 10px; background: #1e293b; color: white; display: flex; gap: 10px; align-items: center; }
+        select, button { padding: 8px; border-radius: 4px; border: none; cursor: pointer; }
         .editor-container { display: flex; flex-grow: 1; overflow: hidden; }
         #editor, #preview { width: 50%; height: 100%; padding: 20px; overflow-y: auto; box-sizing: border-box; }
-        #editor { border: none; border-right: 1px solid #ccc; background: #f8fafc; font-family: monospace; resize: none; }
+        #editor { border: none; border-right: 1px solid #cbd5e1; background: #f8fafc; font-family: monospace; resize: none; }
     </style>
 </head>
 <body>
     <div class="toolbar">
+        <select id="templatePicker" onchange="loadTemplate()">
+            <option value="">-- Choose a Template --</option>
+            <option value="github">GitHub README</option>
+            <option value="blog">Technical Blog Post</option>
+            <option value="report">Project Report</option>
+        </select>
         <button onclick="buildTable()">+ Table Wizard</button>
-        <button onclick="exportDoc('html')">Export HTML</button>
-        <button onclick="generateReadme()">README Template</button>
+        <button onclick="exportDoc()">Export HTML</button>
     </div>
     <div class="editor-container">
         <textarea id="editor" oninput="update()"></textarea>
@@ -25,33 +30,34 @@
     </div>
 
     <script>
-        const md = window.markdownit().use(window.markdownitFootnote);
-        
-        function update() {
-            const content = document.getElementById('editor').value;
-            document.getElementById('preview').innerHTML = md.render(content);
-        }
-
-        // Sync Scroll
+        const md = window.markdownit({html: true, linkify: true, typographer: true});
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
-        editor.onscroll = () => preview.scrollTop = editor.scrollTop;
+
+        function update() {
+            preview.innerHTML = md.render(editor.value);
+        }
+
+        const templates = {
+            github: "# Project Title\n## Overview\nBrief description.\n\n## Installation\n```bash\nnpm install\n```\n\n## License\nMIT",
+            blog: "# Post Title\n## Introduction\nExplain the hook.\n\n## Main Content\n1. Point one\n2. Point two\n\n## Conclusion\nWrap up.",
+            report: "# Quarterly Report\n## Executive Summary\nKey findings...\n\n| Metric | Result |\n| --- | --- |\n| Q1 | 100% |"
+        };
+
+        function loadTemplate() {
+            const val = document.getElementById('templatePicker').value;
+            if(templates[val]) {
+                editor.value = templates[val];
+                update();
+            }
+        }
 
         function buildTable() {
-            const rows = prompt("Rows?", "2");
-            const cols = prompt("Columns?", "2");
-            let mdTable = "\n| " + " Col |".repeat(cols) + "\n| " + " --- |".repeat(cols) + "\n";
-            for(let i=0; i<rows; i++) mdTable += "| " + " |".repeat(cols) + "\n";
-            editor.value += mdTable;
+            editor.value += "\n| Header | Header |\n| --- | --- |\n| Cell | Cell |";
             update();
         }
 
-        function generateReadme() {
-            editor.value = "# Project Title\n## Installation\n```bash\nnpm install\n```";
-            update();
-        }
-
-        function exportDoc(type) {
+        function exportDoc() {
             const blob = new Blob([preview.innerHTML], {type: 'text/html'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
