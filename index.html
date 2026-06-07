@@ -53,7 +53,16 @@
         }
 
         function buildTable() {
-            editor.value += "\n| Header | Header |\n| --- | --- |\n| Cell | Cell |";
+            const rows = parseInt(prompt("How many rows (excluding header)?", "2"));
+            const cols = parseInt(prompt("How many columns?", "2"));
+            if (isNaN(rows) || isNaN(cols)) return;
+
+            let mdTable = "\n| " + Array(cols).fill(" Header ").join("|") + " |\n";
+            mdTable += "| " + Array(cols).fill(" --- ").join("|") + " |\n";
+            for (let i = 0; i < rows; i++) {
+                mdTable += "| " + Array(cols).fill("  ").join("|") + " |\n";
+            }
+            editor.value += mdTable;
             update();
         }
 
@@ -64,6 +73,8 @@
             a.download = 'document.html';
             a.click();
         }
+
+        editor.onscroll = () => preview.scrollTop = editor.scrollTop;
     </script>
 </body>
 </html>
