@@ -1,16 +1,30 @@
+<!DOCTYPE html> 
+<html lang="en"> 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MarkdownLive Pro Suite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkdownLive Pro: Real-time Markdown Editor & Previewer</title>
+    <meta name="description" content="A fast, browser-based Markdown editor with live preview. Includes templates for GitHub READMEs, technical blogs, and reports. 100% free, local, and privacy-focused.">
+    <meta name="keywords" content="markdown editor, live markdown preview, markdown to html, github readme generator, online markdown tool, privacy-first editor">
+    <link rel="canonical" href="https://haisumapku2008-prog.github.io/MarkdownLive/" />
+    
+    <meta property="og:title" content="MarkdownLive Pro Suite">
+    <meta property="og:description" content="Write, preview, and export Markdown documents instantly in your browser.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://haisumapku2008-prog.github.io/MarkdownLive/">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
     <style>
-        body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; }
+        body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .toolbar { padding: 10px; background: #1e293b; color: white; display: flex; gap: 10px; align-items: center; }
-        select, button { padding: 8px; border-radius: 4px; border: none; cursor: pointer; }
+        select, button { padding: 8px; border-radius: 4px; border: none; cursor: pointer; background: #334155; color: white; }
+        button:hover { background: #475569; }
         .editor-container { display: flex; flex-grow: 1; overflow: hidden; }
         #editor, #preview { width: 50%; height: 100%; padding: 20px; overflow-y: auto; box-sizing: border-box; }
-        #editor { border: none; border-right: 1px solid #cbd5e1; background: #f8fafc; font-family: monospace; resize: none; }
+        #editor { border: none; border-right: 1px solid #cbd5e1; background: #f8fafc; font-family: 'Monaco', 'Consolas', monospace; resize: none; font-size: 14px; }
+        #preview { background: white; }
     </style>
 </head>
 <body>
@@ -25,7 +39,7 @@
         <button onclick="exportDoc()">Export HTML</button>
     </div>
     <div class="editor-container">
-        <textarea id="editor" oninput="update()"></textarea>
+        <textarea id="editor" oninput="update()" placeholder="Start typing your Markdown here..."></textarea>
         <div id="preview"></div>
     </div>
 
@@ -34,9 +48,7 @@
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
 
-        function update() {
-            preview.innerHTML = md.render(editor.value);
-        }
+        function update() { preview.innerHTML = md.render(editor.value); }
 
         const templates = {
             github: "# Project Title\n## Overview\nBrief description.\n\n## Installation\n```bash\nnpm install\n```\n\n## License\nMIT",
@@ -46,24 +58,17 @@
 
         function loadTemplate() {
             const val = document.getElementById('templatePicker').value;
-            if(templates[val]) {
-                editor.value = templates[val];
-                update();
-            }
+            if(templates[val]) { editor.value = templates[val]; update(); }
         }
 
         function buildTable() {
             const rows = parseInt(prompt("How many rows (excluding header)?", "2"));
             const cols = parseInt(prompt("How many columns?", "2"));
             if (isNaN(rows) || isNaN(cols)) return;
-
             let mdTable = "\n| " + Array(cols).fill(" Header ").join("|") + " |\n";
             mdTable += "| " + Array(cols).fill(" --- ").join("|") + " |\n";
-            for (let i = 0; i < rows; i++) {
-                mdTable += "| " + Array(cols).fill("  ").join("|") + " |\n";
-            }
-            editor.value += mdTable;
-            update();
+            for (let i = 0; i < rows; i++) { mdTable += "| " + Array(cols).fill("  ").join("|") + " |\n"; }
+            editor.value += mdTable; update();
         }
 
         function exportDoc() {
@@ -78,3 +83,4 @@
     </script>
 </body>
 </html>
+</html> 
